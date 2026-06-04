@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ternary-compiler"
+version = "0.1.0"
+description = "Compile ternary strategies into optimized lookup tables"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "SuperInstance" }]
+
+[project.urls]
+Repository = "https://github.com/SuperInstance/ternary-compiler-python"
