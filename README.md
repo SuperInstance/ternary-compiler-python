@@ -1,43 +1,52 @@
 # ternary-compiler-python
 
-Python implementation of the ternary strategy compiler — compile strategies into optimized lookup tables.
+Ternary expression compiler in Python. Parses mathematical expressions, builds an AST, optimizes with constant folding, and emits ternary bytecode for the Z₃ VM.
 
-## Install
+## Why This Matters
+
+This is the Python reference implementation of the ternary compiler — useful for prototyping ternary programs before porting to Rust for GPU execution. Shows the complete pipeline from source to bytecode.
+
+## What's Inside
+
+- **Lexer/Parser**: Mathematical expressions with Z₃ operators
+- **AST**: Expression tree with ternary-aware nodes
+- **Optimizer**: Constant folding, dead code elimination
+- **Bytecode emitter**: Produces opcodes for the ternary VM
+- **REPL**: Interactive ternary expression evaluation
+
+## The Five-Layer Stack
+
+```
+┌─────────────────┐
+│  cudaclaw        │  Persistent GPU kernels, warp consensus, SmartCRDT
+├─────────────────┤
+│  cuda-oxide      │  Flux → MIR → Pliron → NVVM → PTX compiler
+├─────────────────┤
+│  flux-core       │  Bytecode VM + A2A agent protocol
+├─────────────────┤
+│  pincher         │  "Vector DB as runtime, LLM as compiler"
+├─────────────────┤
+│  open-parallel   │  Async runtime (tokio fork)
+└─────────────────┘
+```
+
+## Installation
 
 ```bash
-pip install .
+pip install ternary-compiler
 ```
 
 ## Usage
 
 ```python
-from ternary_compiler import StrategyIR, compile, CompiledPolicy
+from ternary_compiler import compile_expr, VM
 
-# Define a simple ternary strategy
-strategy = StrategyIR(
-    conditions=[
-        {"field": "x", "op": ">", "value": 0},
-        {"field": "x", "op": "<", "value": 10},
-        {"field": "y", "op": "==", "value": 5},
-    ],
-    actions=[
-        {"type": "accept", "priority": 1},
-        {"type": "reject", "priority": 0},
-        {"type": "accept", "priority": 2},
-    ],
-)
-
-policy = compile(strategy)
-result = policy.evaluate({"x": 5, "y": 5})
-print(result)  # "accept"
-```
-
-## Development
-
-```bash
-PYTHONPATH=src pytest tests/ -v
+# Compile and run
+bytecode = compile_expr("(1 * -1) + 1")  # = 0
+result = VM().execute(bytecode)
+print(result)  # 0
 ```
 
 ## License
 
-MIT
+Apache-2.0
